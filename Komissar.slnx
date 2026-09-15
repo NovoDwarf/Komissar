@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/Examples/" />
+  <Folder Name="/Sources/">
+    <Project Path="Sources/Komissar/Komissar.csproj" />
+  </Folder>
+  <Folder Name="/Tests/" />
+</Solution>

@@ -1,0 +1,29 @@
+<Project>
+    <PropertyGroup>
+        <LocalNugetRepository>F:\nugets</LocalNugetRepository>
+        <NugetArtifacts>$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\nuget</NugetArtifacts>
+    </PropertyGroup>
+
+    <Target Name="PublishLocalNuget" AfterTargets="Build" Condition="'$(IsPackable)' == 'true' and '$(Configuration)' == 'Debug'">
+
+        <Message Text="Publishing $(PackageId) to local NuGet repository..."
+                Importance="High" />
+
+        <Exec Command="dotnet pack &quot;$(MSBuildProjectFullPath)&quot; --no-build --configuration $(Configuration) --output &quot;$(NugetArtifacts)&quot; -p:PackageVersion=$(Version) -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg" />
+
+        <ItemGroup>
+            <LocalPackages Include="$(NugetArtifacts)\*.nupkg" />
+            <LocalSymbols Include="$(NugetArtifacts)\*.snupkg" />
+        </ItemGroup>
+
+        <Copy SourceFiles="@(LocalPackages)"
+                DestinationFolder="$(LocalNugetRepository)"
+                SkipUnchangedFiles="false" />
+
+        <Copy SourceFiles="@(LocalSymbols)"
+                DestinationFolder="$(LocalNugetRepository)"
+                SkipUnchangedFiles="false" />
+
+    </Target>
+
+</Project>

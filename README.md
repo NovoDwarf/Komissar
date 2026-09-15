@@ -2,4 +2,4 @@
 
 ## License
 
-[**Messager.NET**]() is licensed under the [**MIT License**](), see [LICENSE](LICENSE) for more information.
+[**Komissar**]() is licensed under the [**MIT License**](), see [LICENSE](LICENSE) for more information.

@@ -1,28 +1,47 @@
 <Project>
+
     <PropertyGroup>
         <LocalNugetRepository>F:\nugets</LocalNugetRepository>
-        <NugetArtifacts>$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\nuget</NugetArtifacts>
+        <NugetArtifacts>$(MSBuildProjectDirectory)\bin\$(Configuration)</NugetArtifacts>
     </PropertyGroup>
 
-    <Target Name="PublishLocalNuget" AfterTargets="Build" Condition="'$(IsPackable)' == 'true' and '$(Configuration)' == 'Debug'">
+    <Target Name="PublishLocalNuget"
+            AfterTargets="Pack"
+            Condition="'$(IsPackable)' == 'true' and '$(Configuration)' == 'Debug' and '$(TargetFramework)' == 'net11.0'">
 
-        <Message Text="Publishing $(PackageId) to local NuGet repository..."
+        <PropertyGroup>
+            <CurrentPackageRepository>
+                $([System.IO.Path]::Combine('$(LocalNugetRepository)', '$(PackageId)'))
+            </CurrentPackageRepository>
+        </PropertyGroup>
+
+        <Message
+                Text="Publishing $(PackageId) $(PackageVersion) to local NuGet repository..."
                 Importance="High" />
-
-        <Exec Command="dotnet pack &quot;$(MSBuildProjectFullPath)&quot; --no-build --configuration $(Configuration) --output &quot;$(NugetArtifacts)&quot; -p:PackageVersion=$(Version) -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg" />
+        
+        <MakeDir Directories="$(CurrentPackageRepository)" />
 
         <ItemGroup>
-            <LocalPackages Include="$(NugetArtifacts)\*.nupkg" />
-            <LocalSymbols Include="$(NugetArtifacts)\*.snupkg" />
+            <LocalPackages
+                    Include="$(PackageOutputPath)$(PackageId).$(PackageVersion).nupkg"
+                    Condition="Exists('$(PackageOutputPath)$(PackageId).$(PackageVersion).nupkg')" />
+
+            <LocalSymbols
+                    Include="$(PackageOutputPath)$(PackageId).$(PackageVersion).snupkg"
+                    Condition="Exists('$(PackageOutputPath)$(PackageId).$(PackageVersion).snupkg')" />
         </ItemGroup>
 
-        <Copy SourceFiles="@(LocalPackages)"
-                DestinationFolder="$(LocalNugetRepository)"
-                SkipUnchangedFiles="false" />
+        <Copy
+                SourceFiles="@(LocalPackages)"
+                DestinationFolder="$(CurrentPackageRepository)"
+                SkipUnchangedFiles="false"
+                Condition="'@(LocalPackages)' != ''" />
 
-        <Copy SourceFiles="@(LocalSymbols)"
-                DestinationFolder="$(LocalNugetRepository)"
-                SkipUnchangedFiles="false" />
+        <Copy
+                SourceFiles="@(LocalSymbols)"
+                DestinationFolder="$(CurrentPackageRepository)"
+                SkipUnchangedFiles="false"
+                Condition="'@(LocalSymbols)' != ''" />
 
     </Target>
 
